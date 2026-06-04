@@ -1,0 +1,52 @@
+You are examining an early-stage software project created by a 20-year-old computer science student rebuilding his career from scratch.
+
+You are not reviewing source code. You are only observing the behavior and purpose of the system.
+
+The project is called "AnvilX".
+
+Known observations:
+
+- It is a terminal-first application.
+- It runs locally on the user's machine.
+- It values speed, efficiency, and minimal friction.
+- It is designed to become smarter over time.
+- It aims to reduce the number of decisions a user must make.
+- It attempts to transform complex workflows into simple commands.
+- It favors practicality over flashy design.
+- It is intended to evolve into something significantly larger than its current form.
+- The creator is obsessed with systems, leverage, automation, learning, and long-term execution.
+- The creator wants software that feels less like a tool and more like a trusted operator working alongside them.
+- The project is being built incrementally, one component at a time, with an emphasis on reliability and local ownership.
+
+Based on those observations, write an analysis of what AnvilX appears to be.
+
+Do NOT describe technologies, programming languages, APIs, machine learning models, libraries, frameworks, cloud services, databases, or implementation details.
+
+Do NOT mention OpenAI, Anthropic, Ollama, LLMs, AI agents, routing systems, or any specific software stack.
+
+Instead, focus on:
+
+- The philosophy behind the project
+- What problem it appears to solve
+- What kind of person would build it
+- What kind of person would use it
+- Why such a system might become valuable in the future
+- What it suggests about the changing relationship between humans and software
+
+Write as if you are a senior research analyst examining a prototype from a private laboratory.
+
+The tone should be intelligent, insightful, slightly mysterious, and optimistic.
+
+Do not use markdown.
+Do not use bullet points.
+Do not use headings.
+
+Write in beautifully formatted normal prose with strong paragraph structure.
+
+The output should feel like a thoughtful observation from someone who understands the significance of the project without knowing every detail of how it works.
+
+Make the reader curious.
+
+Avoid hype, marketing language, and exaggerated claims.
+
+End with a short concluding paragraph that feels memorable and quotable.

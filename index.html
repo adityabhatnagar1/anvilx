@@ -1,0 +1,1309 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🛠️ anvilX 🛠️</title>
+    <meta
+      name="description"
+      content="A Rust CLI that routes prompts to the cheapest AI model that can answer them. Cut your API spend drastically."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* ── FONTS ─────────────────────────────────────────────── */
+      @font-face {
+        font-family: "Bitter";
+        src: url("/dump/bitter/Bitter-VariableFont_wght.ttf") format("truetype");
+        font-weight: 100 900;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Bitter";
+        src: url("/dump/bitter/Bitter-Italic-VariableFont_wght.ttf")
+          format("truetype");
+        font-weight: 100 900;
+        font-style: italic;
+      }
+      @font-face {
+        font-family: "OwnersX";
+        src: url("/dump/ownersx/Owners-XXNarrow-Black.otf") format("opentype");
+        font-weight: 900;
+        font-style: normal;
+      }
+
+      /* ── RESET + VARS ───────────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --black: #000000;
+        --white: #f7f5f2;
+        --gray-100: #f5f5f5;
+        --gray-200: #e8e8e8;
+        --gray-400: #999999;
+        --gray-600: #555555;
+        --red: #e8202e;
+        --green: #00e676;
+        --font-condensed: "Barlow Condensed", sans-serif;
+        --font-body: "Bitter", serif;
+        --font-owners: "OwnersX", sans-serif;
+        --container-max: 1220px;
+        --header-h: 42px;
+      }
+      html {
+        font-size: 16px;
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--font-body);
+        background: var(--white);
+        color: var(--black);
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      a:hover {
+        color: var(--red);
+      }
+      img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      ul {
+        list-style: none;
+      }
+      code,
+      pre {
+        font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+      }
+
+      /* ── CONTAINER ──────────────────────────────────────────── */
+      .container {
+        max-width: var(--container-max);
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* ── TAGS / LABELS ──────────────────────────────────────── */
+      .tag {
+        display: inline-block;
+        font-family: var(--font-condensed);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--red);
+        margin-bottom: 6px;
+      }
+      .tag.green {
+        color: var(--green);
+      }
+      .tag.gray {
+        color: var(--gray-400);
+      }
+
+      /* ── SECTION HEADINGS ───────────────────────────────────── */
+      .section-heading {
+        font-family: var(--font-owners);
+        font-size: 22px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        border-bottom: 3px solid var(--black);
+        padding-bottom: 8px;
+        margin-bottom: 24px;
+      }
+
+      /* ── NAV ────────────────────────────────────────────────── */
+      .site-header {
+        background: var(--black);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .header-inner {
+        max-width: var(--container-max);
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      .top-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: var(--header-h);
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 0;
+      }
+      .nav-links a {
+        display: block;
+        font-family: var(--font-owners);
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--white);
+        padding: 0 14px;
+        height: var(--header-h);
+        line-height: var(--header-h);
+        transition: background 0.15s;
+      }
+      .nav-links a:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--white);
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .nav-right a {
+        font-family: var(--font-condensed);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.6);
+        transition: color 0.15s;
+      }
+      .nav-right a:hover {
+        color: var(--white);
+      }
+      .nav-cta {
+        background: var(--red);
+        color: var(--white) !important;
+        padding: 6px 14px;
+        font-family: var(--font-condensed);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        transition: background 0.15s !important;
+      }
+      .nav-cta:hover {
+        background: #c0121e !important;
+        color: var(--white) !important;
+      }
+
+      /* ── LOGO BAR ───────────────────────────────────────────── */
+      .logo-bar {
+        background: var(--white);
+        border-bottom: 1px solid var(--gray-200);
+        padding: 22px 18px;
+        text-align: center;
+      }
+      .logo-text {
+        font-family: var(--font-owners);
+        font-size: 64px;
+        font-weight: 900;
+        font-style: italic;
+        letter-spacing: -0.01em;
+        color: var(--black);
+        line-height: 1;
+        text-transform: uppercase;
+      }
+      .logo-sub {
+        font-family: var(--font-condensed);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--gray-400);
+        margin-top: 4px;
+      }
+
+      /* ── HERO ───────────────────────────────────────────────── */
+      .hero-section {
+        padding: 36px 0 0;
+        border-bottom: 1px solid var(--gray-200);
+      }
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 32px;
+        align-items: start;
+      }
+
+      /* hero left */
+      .hero-left {
+      }
+      .hero-eyebrow {
+        font-family: var(--font-condensed);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--red);
+        margin-bottom: 10px;
+      }
+      .hero-title {
+        font-family: var(--font-owners);
+        font-size: 52px;
+        font-weight: 900;
+        line-height: 1;
+        margin-bottom: 16px;
+        text-transform: uppercase;
+      }
+      .hero-title span {
+        color: var(--red);
+        font-style: italic;
+      }
+      .hero-desc {
+        font-size: 15px;
+        color: var(--gray-600);
+        font-style: italic;
+        line-height: 1.65;
+        margin-bottom: 24px;
+        max-width: 560px;
+      }
+
+      /* terminal block */
+      .term-block {
+        background: var(--black);
+        padding: 20px 22px;
+        margin-bottom: 28px;
+        border-left: 3px solid var(--green);
+      }
+      .term-line {
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 13px;
+        line-height: 2;
+        color: rgba(255, 255, 255, 0.6);
+      }
+      .term-line .prompt {
+        color: var(--green);
+      }
+      .term-line .cmd {
+        color: #fff;
+        font-weight: 600;
+      }
+      .term-line .out {
+        color: #80deea;
+      }
+      .term-line .cost {
+        color: var(--green);
+      }
+      .term-line .dim {
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      /* stat pills */
+      .stat-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+      }
+      .stat-pill {
+        background: var(--black);
+        color: var(--white);
+        padding: 10px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .stat-pill .stat-n {
+        font-family: var(--font-owners);
+        font-size: 28px;
+        font-weight: 900;
+        line-height: 1;
+      }
+      .stat-pill .stat-n.red {
+        color: var(--red);
+      }
+      .stat-pill .stat-n.green {
+        color: var(--green);
+      }
+      .stat-pill .stat-l {
+        font-family: var(--font-condensed);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      /* hero right sidebar */
+      .hero-sidebar {
+        border-left: 1px solid var(--gray-200);
+        padding-left: 24px;
+      }
+      .sidebar-label {
+        font-family: var(--font-owners);
+        font-size: 14px;
+        font-weight: 900;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--gray-400);
+        border-bottom: 2px solid var(--gray-200);
+        padding-bottom: 6px;
+        margin-bottom: 16px;
+      }
+
+      /* routing table mini */
+      .route-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      .route-table th {
+        font-family: var(--font-condensed);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--gray-400);
+        text-align: left;
+        padding: 0 0 6px 0;
+        border-bottom: 1px solid var(--gray-200);
+      }
+      .route-table td {
+        font-family: var(--font-condensed);
+        font-size: 12px;
+        font-weight: 600;
+        padding: 7px 0;
+        border-bottom: 1px solid var(--gray-200);
+        vertical-align: top;
+      }
+      .route-table tr:last-child td {
+        border-bottom: none;
+      }
+      .route-table .model {
+        color: #80deea;
+        font-family: monospace;
+        font-size: 11px;
+      }
+      .route-table .cost-free {
+        color: var(--green);
+        font-weight: 800;
+      }
+      .route-table .cost-cheap {
+        color: #ffb020;
+        font-weight: 800;
+      }
+      .route-table .cost-mid {
+        color: var(--red);
+        font-weight: 800;
+      }
+
+      .sidebar-note {
+        background: var(--gray-100);
+        padding: 14px 16px;
+        border-left: 3px solid var(--black);
+      }
+      .sidebar-note p {
+        font-size: 12px;
+        color: var(--gray-600);
+        font-style: italic;
+        line-height: 1.55;
+      }
+      .sidebar-note strong {
+        color: var(--black);
+        font-style: normal;
+      }
+
+      /* ── SECTIONS GENERAL ───────────────────────────────────── */
+      section {
+        padding: 40px 0;
+        border-bottom: 1px solid var(--gray-200);
+      }
+
+      /* ── ARCHITECTURE ───────────────────────────────────────── */
+      .arch-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        align-items: start;
+      }
+      .arch-desc {
+        font-size: 14px;
+        color: var(--gray-600);
+        font-style: italic;
+        line-height: 1.7;
+        margin-bottom: 20px;
+      }
+      .file-tree {
+        background: var(--black);
+        padding: 20px 22px;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 12px;
+        line-height: 1.9;
+        color: rgba(255, 255, 255, 0.5);
+      }
+      .file-tree .file-name {
+        color: #ccd0e0;
+      }
+      .file-tree .file-comment {
+        color: rgba(255, 255, 255, 0.25);
+      }
+      .file-tree .file-dir {
+        color: #ffb020;
+      }
+
+      .arch-svg-wrap {
+        background: var(--black);
+        padding: 0;
+        overflow: hidden;
+      }
+
+      /* ── ROADMAP / PHASES ───────────────────────────────────── */
+      .phases-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1px;
+        background: var(--gray-200);
+        border: 1px solid var(--gray-200);
+        margin-bottom: 32px;
+      }
+      .phase-card {
+        background: var(--white);
+        padding: 20px 18px;
+      }
+      .phase-card.done {
+        background: var(--black);
+      }
+      .phase-num {
+        font-family: var(--font-owners);
+        font-size: 48px;
+        font-weight: 900;
+        line-height: 1;
+        color: var(--gray-200);
+        margin-bottom: 8px;
+      }
+      .phase-card.done .phase-num {
+        color: rgba(255, 255, 255, 0.1);
+      }
+      .phase-tag {
+        font-family: var(--font-condensed);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--red);
+        margin-bottom: 4px;
+      }
+      .phase-card.done .phase-tag {
+        color: var(--green);
+      }
+      .phase-title {
+        font-family: var(--font-owners);
+        font-size: 18px;
+        font-weight: 900;
+        line-height: 1.1;
+        margin-bottom: 8px;
+      }
+      .phase-card.done .phase-title {
+        color: var(--white);
+      }
+      .phase-items {
+        font-size: 11px;
+        color: var(--gray-600);
+        font-family: var(--font-condensed);
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        line-height: 1.8;
+      }
+      .phase-card.done .phase-items {
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      /* weeks row */
+      .weeks-row {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+      }
+      .week-item {
+        padding: 14px 16px;
+        border: 1px solid var(--gray-200);
+      }
+      .week-num {
+        font-family: var(--font-owners);
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--gray-400);
+        margin-bottom: 4px;
+      }
+      .week-title {
+        font-family: var(--font-condensed);
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      /* ── STACK / DEPS ───────────────────────────────────────── */
+      .deps-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        background: var(--gray-200);
+        border: 1px solid var(--gray-200);
+      }
+      .dep-card {
+        background: var(--white);
+        padding: 18px 20px;
+      }
+      .dep-crate {
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--black);
+        margin-bottom: 4px;
+      }
+      .dep-ver {
+        font-family: var(--font-condensed);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--gray-400);
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+      .dep-desc {
+        font-size: 12px;
+        color: var(--gray-600);
+        font-style: italic;
+        line-height: 1.5;
+      }
+
+      /* ── CODE SNIPPET ───────────────────────────────────────── */
+      .code-block {
+        background: var(--black);
+        padding: 22px 24px;
+        overflow-x: auto;
+        margin-bottom: 20px;
+      }
+      .code-block pre {
+        font-size: 12px;
+        line-height: 1.8;
+        color: rgba(255, 255, 255, 0.7);
+        white-space: pre;
+        tab-size: 4;
+      }
+      .code-block .kw {
+        color: #c792ea;
+      }
+      .code-block .str {
+        color: #c3e88d;
+      }
+      .code-block .cmt {
+        color: rgba(255, 255, 255, 0.28);
+      }
+      .code-block .fn {
+        color: #82aaff;
+      }
+      .code-block .num {
+        color: #f78c6c;
+      }
+      .code-block .mac {
+        color: #ffcb6b;
+      }
+      .code-block .ty {
+        color: #ffcb6b;
+      }
+
+      .code-label {
+        font-family: var(--font-condensed);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--gray-400);
+        margin-bottom: 6px;
+      }
+
+      /* ── PRICING TABLE ──────────────────────────────────────── */
+      .pricing-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .pricing-table th {
+        font-family: var(--font-condensed);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--gray-400);
+        text-align: left;
+        padding: 0 16px 10px 0;
+        border-bottom: 2px solid var(--black);
+      }
+      .pricing-table td {
+        font-size: 13px;
+        padding: 10px 16px 10px 0;
+        border-bottom: 1px solid var(--gray-200);
+        vertical-align: middle;
+      }
+      .pricing-table .model-name {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+      }
+      .tier-free {
+        color: var(--green);
+        font-family: var(--font-condensed);
+        font-weight: 800;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+      }
+      .tier-cheap {
+        color: #ffb020;
+        font-family: var(--font-condensed);
+        font-weight: 800;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+      }
+      .tier-mid {
+        color: var(--red);
+        font-family: var(--font-condensed);
+        font-weight: 800;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+      }
+      .tier-prem {
+        color: #c792ea;
+        font-family: var(--font-condensed);
+        font-weight: 800;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+      }
+
+      /* ── QUOTE / CALLOUT ────────────────────────────────────── */
+      .callout {
+        border-left: 4px solid var(--black);
+        padding: 16px 20px;
+        background: var(--gray-100);
+        margin: 24px 0;
+      }
+      .callout p {
+        font-size: 14px;
+        color: var(--gray-600);
+        font-style: italic;
+        line-height: 1.6;
+      }
+      .callout strong {
+        color: var(--black);
+        font-style: normal;
+      }
+
+      /* ── FOOTER ─────────────────────────────────────────────── */
+      footer {
+        background: var(--black);
+        color: var(--white);
+        padding: 40px 0 28px;
+        border-top: none;
+      }
+      .footer-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding-bottom: 28px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 20px;
+      }
+      .footer-brand .logo-text {
+        color: var(--white);
+        font-size: 36px;
+      }
+      .footer-brand p {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 8px;
+        font-style: italic;
+      }
+      .footer-links {
+        display: flex;
+        gap: 40px;
+      }
+      .footer-col h4 {
+        font-family: var(--font-condensed);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.4);
+        margin-bottom: 12px;
+      }
+      .footer-col ul li {
+        margin-bottom: 8px;
+      }
+      .footer-col ul li a {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        transition: color 0.15s;
+      }
+      .footer-col ul li a:hover {
+        color: var(--white);
+      }
+      .footer-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .footer-bottom p {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.3);
+      }
+      .footer-bottom a {
+        font-family: var(--font-condensed);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.4);
+        transition: color 0.15s;
+      }
+      .footer-bottom a:hover {
+        color: var(--white);
+      }
+
+      /* ── RESPONSIVE ─────────────────────────────────────────── */
+      @media (max-width: 1000px) {
+        .arch-grid {
+          grid-template-columns: 1fr;
+        }
+        .phases-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .weeks-row {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      @media (max-width: 768px) {
+        .hero-grid {
+          grid-template-columns: 1fr;
+        }
+        .hero-sidebar {
+          border-left: none;
+          padding-left: 0;
+          border-top: 2px solid var(--black);
+          padding-top: 20px;
+        }
+        .hero-title {
+          font-size: 36px;
+        }
+        .logo-text {
+          font-size: 42px;
+        }
+        .deps-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .phases-grid {
+          grid-template-columns: 1fr;
+        }
+        .footer-inner {
+          flex-direction: column;
+          gap: 24px;
+        }
+        .footer-links {
+          flex-direction: column;
+          gap: 20px;
+        }
+        .weeks-row {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 480px) {
+        .deps-grid {
+          grid-template-columns: 1fr;
+        }
+        .stat-row {
+          gap: 8px;
+        }
+        .weeks-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- NAV -->
+    <header class="site-header">
+      <div class="header-inner">
+        <nav class="top-nav">
+          <div class="nav-links">
+            <a href="#overview">Overview</a>
+
+            <a href="#stack">Stack</a>
+            <a href="#pricing">Pricing</a>
+          </div>
+          <div class="nav-right">
+            <a
+              href="https://github.com/adityabhatnagar1/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >GitHub</a
+            >
+            <a
+              href="https://adityabhatnagar.is-a.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Portfolio</a
+            >
+            <a
+              href="https://github.com/adityabhatnagar1/anvilx"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="nav-cta"
+              >View Source</a
+            >
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- LOGO BAR -->
+    <div class="logo-bar">
+      <div class="container">
+        <div class="logo-text">𓏲 ๋࣭ ࣪ ˖AnvilX⋆｡°⋆･</div>
+        <p class="logo-sub">A Multi-LLM CLI Router · Built in Rust</p>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <section id="overview" class="hero-section">
+      <div class="container">
+        <div class="hero-grid">
+          <!-- LEFT -->
+          <div class="hero-left">
+            <h1 class="hero-title">
+              Route smarter.<br /><span>Spend lesser.</span>
+            </h1>
+            <p class="hero-desc">
+              A Rust-based CLI tool that optimizes your AI spend by routing,
+              merging-demerging, and caching prompts across multiple providers
+              and models. Every small API cost can crazily skyrocket and drain
+              your wallet, to stop that my tool helps you!
+            </p>
+
+            <div class="term-block">
+              <div class="term-line">
+                <span class="prompt">$</span>
+                <span class="cmd">bro ask "what is a prime number?"</span>
+              </div>
+              <div class="term-line">
+                <span class="dim">→ routing to</span>
+                <span class="out">ollama/llama3.2</span>
+                <span class="dim">(short simple question → local model)</span>
+              </div>
+              <div class="term-line">
+                <span class="dim">┌─ </span
+                ><span class="out">ollama/llama3.2</span
+                ><span class="dim"> (0 + 0 tokens) </span
+                ><span class="cost">$0.0000</span
+                ><span class="dim"> 3120ms</span>
+              </div>
+              <div class="term-line">
+                <span class="dim"
+                  >│ A prime number is a natural number greater than 1...</span
+                >
+              </div>
+              <div class="term-line">
+                <span class="dim">└──────────────────────────────</span>
+              </div>
+              <div class="term-line">&nbsp;</div>
+              <div class="term-line">
+                <span class="prompt">$</span>
+                <span class="cmd"
+                  >bro ask "implement a binary search tree in Rust"</span
+                >
+              </div>
+              <div class="term-line">
+                <span class="dim">→ routing to</span>
+                <span class="out">claude-haiku-4-5</span>
+                <span class="dim">(code task → Claude Haiku)</span>
+              </div>
+              <div class="term-line">
+                <span class="dim">┌─ </span
+                ><span class="out">claude-haiku-4-5</span
+                ><span class="dim"> (120 + 344 tokens) </span
+                ><span class="cost">$0.0005</span
+                ><span class="dim"> 412ms</span>
+              </div>
+              <div class="term-line">&nbsp;</div>
+              <div class="term-line">
+                <span class="prompt">$</span> <span class="cmd">bro stats</span>
+              </div>
+              <div class="term-line">
+                <span class="dim">Total queries : 127 · Total cost : </span
+                ><span class="cost">$0.2341</span
+                ><span class="dim"> · Avg/query : $0.0018</span>
+              </div>
+            </div>
+
+            <div class="stat-row">
+              <div class="stat-pill">
+                <span class="stat-n red">~30-50%</span>
+                <span class="stat-l">avg cost saved</span>
+              </div>
+              <div class="stat-pill">
+                <span class="stat-n green">COSTING $0</span>
+                <span class="stat-l">local inference</span>
+              </div>
+              <div class="stat-pill">
+                <span class="stat-n">MANY</span>
+                <span class="stat-l">providers</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SIDEBAR -->
+          <aside class="hero-sidebar">
+            <p class="sidebar-label">Routing Logic</p>
+
+            <table class="route-table">
+              <thead>
+                <tr>
+                  <th>Signal</th>
+                  <th>Model</th>
+                  <th>Cost</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>&lt;20 words, no code</td>
+                  <td class="model">ollama/llama3</td>
+                  <td class="cost-free">FREE</td>
+                </tr>
+                <tr>
+                  <td>Code keywords</td>
+                  <td class="model">claude-haiku</td>
+                  <td class="cost-cheap">~$0.001</td>
+                </tr>
+                <tr>
+                  <td>Normal question</td>
+                  <td class="model">gpt-4o-mini</td>
+                  <td class="cost-cheap">~$0.002</td>
+                </tr>
+                <tr>
+                  <td>150+ words or complex</td>
+                  <td class="model">gpt-4o</td>
+                  <td class="cost-mid">~$0.05</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="sidebar-note">
+              <p>
+                <strong>Why this matters:</strong> One OpenAI engineer spent
+                $1.3M in 30 days on API tokens. Meta burned 60 trillion tokens
+                in a single month. Agentic tasks consume up to
+                <strong>1,000× more tokens</strong> than simple chat. bro routes
+                the cheap stuff to cheap models, automatically.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- STACK -->
+    <section id="stack">
+      <div class="container">
+        <h2 class="section-heading">Crate Stack</h2>
+
+        <div class="deps-grid">
+          <div class="dep-card">
+            <div class="dep-crate">clap</div>
+            <div class="dep-ver">v4 · features = ["derive"]</div>
+            <div class="dep-desc">
+              CLI interface. Define commands as structs with derive macros.
+              Handles <code>bro ask</code>, <code>bro history</code>, flags like
+              <code>--model gpt</code>.
+            </div>
+          </div>
+          <div class="dep-card">
+            <div class="dep-crate">tokio</div>
+            <div class="dep-ver">v1 · features = ["full"]</div>
+            <div class="dep-desc">
+              Async runtime. Fire all provider calls simultaneously with
+              <code>tokio::join!</code>. The engine that makes parallel HTTP
+              requests possible.
+            </div>
+          </div>
+          <div class="dep-card">
+            <div class="dep-crate">reqwest</div>
+            <div class="dep-ver">v0.12 · features = ["json"]</div>
+            <div class="dep-desc">
+              HTTP client. Calls OpenAI, Anthropic, Gemini, Ollama. The
+              <code>json</code> feature auto-serializes request bodies.
+            </div>
+          </div>
+          <div class="dep-card">
+            <div class="dep-crate">serde + serde_json</div>
+            <div class="dep-ver">v1 · features = ["derive"]</div>
+            <div class="dep-desc">
+              Rust structs ↔ JSON. Derive <code>Serialize, Deserialize</code> on
+              your request/response types. Essential for every API call.
+            </div>
+          </div>
+          <div class="dep-card">
+            <div class="dep-crate">rusqlite</div>
+            <div class="dep-ver">v0.31 · features = ["bundled"]</div>
+            <div class="dep-desc">
+              SQLite for Rust. Logs every query, token count, cost, and latency
+              to <code>~/.bro/history.db</code>. Bundled = zero install needed.
+            </div>
+          </div>
+          <div class="dep-card">
+            <div class="dep-crate">colored</div>
+            <div class="dep-ver">v2</div>
+            <div class="dep-desc">
+              Terminal colors. <code>"$0.0005".green()</code>,
+              <code>"Error".red()</code>. Makes the cost badges and routing
+              decisions actually readable.
+            </div>
+          </div>
+          <div class="dep-card">
+            <div class="dep-crate">anyhow</div>
+            <div class="dep-ver">v1</div>
+            <div class="dep-desc">
+              Ergonomic errors. <code>anyhow::Result&lt;T&gt;</code> everywhere.
+              The <code>?</code> operator propagates failures cleanly without
+              custom error types.
+            </div>
+          </div>
+          <div class="dep-card">
+            <div class="dep-crate">dotenv</div>
+            <div class="dep-ver">v0.15</div>
+            <div class="dep-desc">
+              Load API keys from <code>.env</code> at startup. Keys stay out of
+              source code. One call: <code>dotenv::dotenv().ok()</code>.
+            </div>
+          </div>
+          <div class="dep-card">
+            <div class="dep-crate">toml + chrono + dirs</div>
+            <div class="dep-ver">v0.8 · v0.4 · v5</div>
+            <div class="dep-desc">
+              Config file parsing, timestamps for the SQLite history, and
+              cross-platform home directory for <code>~/.bro/</code>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING -->
+    <section id="pricing">
+      <div class="container">
+        <h2 class="section-heading">API Pricing Reference</h2>
+
+        <div class="callout">
+          <p>
+            Prices as of mid-2025. A typical prompt + response (~500 input + 500
+            output tokens) on GPT-4o-mini costs roughly
+            <strong>$0.000375</strong> — about 0.04 cents. The router's job is
+            to use that model only when needed, and free local inference the
+            rest of the time.
+          </p>
+        </div>
+
+        <table class="pricing-table">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>API String</th>
+              <th>$/1M input</th>
+              <th>$/1M output</th>
+              <th>Tier</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Ollama (local)</td>
+              <td class="model-name">any local model</td>
+              <td>$0.00</td>
+              <td>$0.00</td>
+              <td class="tier-free">FREE</td>
+            </tr>
+            <tr>
+              <td>Gemini Flash</td>
+              <td class="model-name">gemini-1.5-flash</td>
+              <td>$0.075</td>
+              <td>$0.30</td>
+              <td class="tier-cheap">CHEAP</td>
+            </tr>
+            <tr>
+              <td>GPT-4o-mini</td>
+              <td class="model-name">gpt-4o-mini</td>
+              <td>$0.15</td>
+              <td>$0.60</td>
+              <td class="tier-cheap">CHEAP</td>
+            </tr>
+            <tr>
+              <td>Claude Haiku 4.5</td>
+              <td class="model-name">claude-haiku-4-5-20251001</td>
+              <td>$0.80</td>
+              <td>$4.00</td>
+              <td class="tier-cheap">CHEAP</td>
+            </tr>
+            <tr>
+              <td>GPT-4o</td>
+              <td class="model-name">gpt-4o</td>
+              <td>$2.50</td>
+              <td>$10.00</td>
+              <td class="tier-mid">MID</td>
+            </tr>
+            <tr>
+              <td>Claude Sonnet 4.6</td>
+              <td class="model-name">claude-sonnet-4-6</td>
+              <td>$3.00</td>
+              <td>$15.00</td>
+              <td class="tier-mid">MID</td>
+            </tr>
+            <tr>
+              <td>Claude Opus 4.6</td>
+              <td class="model-name">claude-opus-4-6</td>
+              <td>$15.00</td>
+              <td>$75.00</td>
+              <td class="tier-prem">PREMIUM</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer id="contact">
+      <div class="container">
+        <div class="footer-inner">
+          <div class="footer-brand">
+            <div class="logo-text">ANVIL X 🛠️</div>
+            <p>Aditya Bhatnagar</p>
+            <p>ECE Major, GGSIPU</p>
+          </div>
+          <div class="footer-links">
+            <div class="footer-col">
+              <h4>Project</h4>
+              <ul>
+                <li><a href="#overview">Overview</a></li>
+
+                <li><a href="#stack">Stack</a></li>
+                <li><a href="#pricing">Pricing Ref</a></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h4>Links</h4>
+              <ul>
+                <li>
+                  <a
+                    href="https://github.com/adityabhatnagar1/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >GitHub</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://www.linkedin.com/in/adityabhatnagar1/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >LinkedIn</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://soundcloud.com/abhatn1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >SoundCloud</a
+                  >
+                </li>
+                <li><a href="mailto:abhatn1.dev@gmail.com">Email</a></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h4>Learn Rust</h4>
+              <ul>
+                <li>
+                  <a
+                    href="https://book.rust-lang.org"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >The Rust Book</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://tokio.rs"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >Tokio</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://docs.rs/clap"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >clap docs</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="https://serde.rs"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >serde.rs</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>© 2025 Aditya Bhatnagar · bro CLI @AnvilX</p>
+          <a
+            href="https://github.com/adityabhatnagar1/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >View on GitHub →</a
+          >
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Smooth entrance on scroll
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.style.opacity = "1";
+              entry.target.style.transform = "translateY(0)";
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.08 },
+      );
+
+      document
+        .querySelectorAll(".phase-card, .dep-card, .week-item, .stat-pill")
+        .forEach((el) => {
+          el.style.opacity = "0";
+          el.style.transform = "translateY(12px)";
+          el.style.transition = "opacity 0.35s ease, transform 0.35s ease";
+          observer.observe(el);
+        });
+    </script>
+  </body>
+</html>
