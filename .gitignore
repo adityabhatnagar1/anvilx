@@ -1,0 +1,22 @@
+# SECURITY
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+/target/
+
+# Runtime data
+*.db
+history.db
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Editors
+.idea/
+.vscode/
+*.iml
