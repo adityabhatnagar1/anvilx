@@ -69,4 +69,4 @@ MIT License
 
 ---
 
-Built by a sleep-deprived computer science student who got tired of opening six AI tabs at once.
+OMG!
